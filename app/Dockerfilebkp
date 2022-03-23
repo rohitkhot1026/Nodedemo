@@ -1,0 +1,18 @@
+FROM node:14
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+COPY package-lock.json ./
+
+RUN npm install
+
+RUN npm install -g
+RUN npm install -g create-react-app
+RUN npm install --save react react-dom
+RUN npm install -g  express
+RUN npm install -g concurrently
+COPY . .
+#RUN npm run build
+
+EXPOSE 5000
+CMD [ "npm", "start" ]

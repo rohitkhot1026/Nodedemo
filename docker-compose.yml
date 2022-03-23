@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:5.0.2
+    restart: unless-stopped
+   # env_file: ./.env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=123456
+    ports:
+      - 27017:27017
+    volumes:
+      - db:/data/db
+  app:
+    depends_on:
+      - mongodb
+    links:
+      - mongodb    
+    build: ./app
+    restart: unless-stopped
+    #  env_file: ./.env
+    ports:
+      - 5000:5000
+    environment:
+      - DB_HOST=localhost
+      - DB_USER=root
+      - DB_PASSWORD=123456
+      - DB_NAME=chat-app
+      - DB_PORT=27017
+    stdin_open: true
+    tty: true
+
+  frontend:
+    depends_on:
+      - mongodb
+      - app      
+    container_name: frontend
+    build: ./client
+    volumes:
+      - './client:/usr/src/app'
+      - '/usr/src/app/node_modules'
+    ports:
+      - 80:80
+        #    entrypoint: ["npm", "start"]    
+
+volumes:
+  db:

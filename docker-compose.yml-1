@@ -1,0 +1,58 @@
+version: "3"
+services:
+  react-clinet:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: react-client
+    container_name: react-client
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    links:
+      - express-server
+      - mongodb  
+    depends_on:
+      - express-server
+      - mongodb  
+    networks:
+      - app_network
+              
+  express-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: express-server
+    container_name: express-server
+    restart: unless-stopped
+    ports:
+      - "3000:5000"
+    environment:
+      - DB_HOST=mongodb
+      - DB_USER=root
+      - DB_PASSWORD=123456
+      - DB_NAME=chat-app
+      - DB_PORT=27017    
+    links:
+      - mongodb
+    depends_on: 
+      - mongodb
+    networks:
+      - app_network
+
+  mongodb:
+    image: mongo:4.2
+    container_name: mongodb
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=123456    
+    networks:
+      - app_network
+volumes:
+  dbdata:
+networks:
+  app_network:
+    driver: bridge
